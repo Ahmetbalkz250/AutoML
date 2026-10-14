@@ -90,49 +90,49 @@ class AutoMLApp(ctk.CTk):
                 self.combo_hedef.set("Error Occurred")
 
     def run_logistic(self):
-        # 1. GÜVENLİK KONTROLLERİ: Dosya seçilmiş mi? Hedef sütun yazılmış mı?
+        # 1. SECURITY CHECKS: Is a file selected? Is a target column entered?
         if not self.secilen_dosya_yolu:
-            messagebox.showerror("Eksik Bilgi", "Lütfen önce bir veri dosyası (.csv/.xlsx) seçin!")
+            messagebox.showerror("Missing Information", "Please select a data file (.csv/.xlsx) first!")
             return
             
         hedef_sutun = self.combo_hedef.get() 
-        if hedef_sutun == "Önce Dosya Seçin..." or hedef_sutun == "Hata Oluştu":
-            messagebox.showerror("Eksik Bilgi", "Lütfen geçerli bir hedef sütun seçin!")
+        # Önceki kodda İngilizceye çevirdiğimiz açılır menü uyarılarıyla birebir aynı olmalı ki hata vermesin:
+        if hedef_sutun == "Please select a file first..." or hedef_sutun == "Error Occurred":
+            messagebox.showerror("Missing Information", "Please select a valid target column!")
             return
 
-        # 2. VERİ HAMALLIĞI: Dosyayı data_processor'a yollayıp X ve y'yi alıyoruz
+        # 2. DATA PROCESSING: Sending the file to data_processor and getting X and y
         basarili_mi, sonuc = load_and_prepare_data(self.secilen_dosya_yolu, hedef_sutun)
         
         if not basarili_mi:
-            # İşlem başarısızsa, 'sonuc' değişkeninde yazan hata mesajını ekrana bas ve dur.
-            messagebox.showerror("Veri Hatası", sonuc)
+            # If the process fails, display the error message from the 'sonuc' variable and stop.
+            messagebox.showerror("Data Error", sonuc)
             return
             
-        # İşlem başarılıysa X ve y'yi paketten çıkar
+        # If successful, unpack X and y
         X, y = sonuc
         
-        # 3. MOTORU ATEŞLEME: X ve y'yi Logistic Regression motoruna fırlat
+        # 3. ENGINE IGNITION: Send X and y to the Logistic Regression engine
         try:
             skor, model, scaler = train_logistic_regression(X, y)
             
-            # Eğitilen model ve scaler'ı ileride "yeni veri" tahmini yaparken 
-            # kullanmak üzere programın hafızasına (self) kaydediyoruz.
+            # Saving the trained model and scaler to the program's memory (self)
+            # to use later when predicting "new data".
             self.aktif_model = model
             self.aktif_scaler = scaler
-            self.aktif_model_tipi = "Sınıflandırma"
+            self.aktif_model_tipi = "Classification"
             
-            # 4. SKOR KONTROLÜ (Senin istediğin o %80 barajı)
+            # 4. SCORE CHECK (The 80% threshold you requested)
             if skor >= 0.80:
-                messagebox.showinfo("Model Başarılı!", 
-                                    f"Harika! Model yüksek başarıyla eğitildi.\n\nF1 Skoru: {skor:.4f}\n\nArtık yeni verileri tahmin edebilirsiniz.")
+                messagebox.showinfo("Model Success!", 
+                                    f"Great! The model was trained with high accuracy.\n\nF1 Score: {skor:.4f}\n\nYou can now predict new data.")
             else:
-                messagebox.showwarning("Düşük Başarı", 
-                                       f"Model eğitildi ancak skor %80'in altında kaldı.\n\nF1 Skoru: {skor:.4f}\n\nDaha iyi veriler yüklemeyi deneyin.")
+                messagebox.showwarning("Low Performance", 
+                                       f"Model trained, but the score is below 80%.\n\nF1 Score: {skor:.4f}\n\nTry uploading better data.")
                                        
         except Exception as e:
-            # Eğitilirken matematiksel bir çökme olursa program kapanmasın diye:
-            messagebox.showerror("Motor Hatası", f"Model eğitilirken kritik bir hata oluştu:\n{str(e)}")
-
+            # To prevent the program from crashing if a mathematical error occurs during training:
+            messagebox.showerror("Engine Error", f"A critical error occurred while training the model:\n{str(e)}")
     def run_svc(self):
         # 1. GÜVENLİK KONTROLLERİ
         if not self.secilen_dosya_yolu:
