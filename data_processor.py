@@ -47,13 +47,13 @@ def load_and_prepare_data(file_path, target_column):
 
 def get_column_names(file_path):
     """
-    Sadece dosyanın başlıklarını (sütun isimlerini) okur. 
-    Tüm veriyi yüklemediği için anında çalışır.
+    Reads only the headers (column names) of the file.
+    Since it doesn't load the entire data, it runs instantly.
     """
     _, file_extension = os.path.splitext(file_path)
     try:
         if file_extension.lower() == '.csv':
-            # Sadece 0. satırı (başlıkları) okur, devasa dosyalarda bile ışık hızında çalışır
+            # Reads only the 0th row (headers), works at light speed even on massive files
             df = pd.read_csv(file_path, nrows=0) 
         elif file_extension.lower() in ['.xls', '.xlsx']:
             df = pd.read_excel(file_path, nrows=0)
