@@ -68,26 +68,26 @@ class AutoMLApp(ctk.CTk):
         
         self.secilen_dosya_yolu = None
     def dosya_sec(self):
-        # İşletim sisteminin standart dosya seçme penceresini açar
+        # Opens the standard OS file dialog
         dosya = filedialog.askopenfilename(
-            title="Model İçin Veri Dosyası Seçin",
+            title="Select Data File for Model",
             filetypes=(("Data Files", "*.csv *.xlsx *.xls"), ("All Files", "*.*"))
         )
         
         if dosya:
             self.secilen_dosya_yolu = dosya
-            # Kullanıcıya uzun yolu değil, sadece dosya adını gösteriyoruz
+            # Showing only the filename to the user, not the full path
             dosya_adi = os.path.basename(dosya)
-            self.label_dosya_yolu.configure(text=f"Seçilen Dosya: {dosya_adi}", text_color="white")
+            self.label_dosya_yolu.configure(text=f"Selected File: {dosya_adi}", text_color="white")
 
             basarili, kolonlar = get_column_names(dosya)
             if basarili and kolonlar:
-                self.combo_hedef.configure(values=kolonlar) # Menüye kolonları yükle
-                self.combo_hedef.set(kolonlar[-1]) # Genelde hedef sütun en sondadır, otomatik onu seçili yapsın
+                self.combo_hedef.configure(values=kolonlar) # Load columns into the menu
+                self.combo_hedef.set(kolonlar[-1]) # The target column is usually at the end, select it automatically
             else:
-                messagebox.showerror("Okuma Hatası", "Dosyanın sütunları okunamadı! Formatı kontrol edin.")
-                self.combo_hedef.configure(values=["Hata Oluştu"])
-                self.combo_hedef.set("Hata Oluştu")
+                messagebox.showerror("Read Error", "Could not read the columns of the file! Please check the format.")
+                self.combo_hedef.configure(values=["Error Occurred"])
+                self.combo_hedef.set("Error Occurred")
 
     def run_logistic(self):
         # 1. GÜVENLİK KONTROLLERİ: Dosya seçilmiş mi? Hedef sütun yazılmış mı?
