@@ -114,25 +114,28 @@ class AutoMLApp(ctk.CTk):
         
         # 3. ENGINE IGNITION: Send X and y to the Logistic Regression engine
         try:
-            skor, model, scaler = train_logistic_regression(X, y)
+            # Artık skor değil, 'metrikler' sözlüğü geliyor
+            metrikler, model, scaler = train_logistic_regression(X, y)
             
-            # Saving the trained model and scaler to the program's memory (self)
-            # to use later when predicting "new data".
             self.aktif_model = model
             self.aktif_scaler = scaler
             self.aktif_model_tipi = "Classification"
             
-            # 4. SCORE CHECK (The 80% threshold you requested)
-            if skor >= 0.80:
-                messagebox.showinfo("Model Success!", 
-                                    f"Great! The model was trained with high accuracy.\n\nF1 Score: {skor:.4f}\n\nYou can now predict new data.")
+            # Paketleri açıyoruz
+            f1 = metrikler["F1"]
+            auc = metrikler["AUC"]
+            cm = metrikler["CM"]
+            
+            mesaj = f"F1 Skoru: {f1:.4f}\nAUC: {auc}\n\nKarmaşıklık Matrisi (Confusion Matrix):\n{cm}"
+            
+            if f1 >= 0.80:
+                messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
             else:
-                messagebox.showwarning("Low Performance", 
-                                       f"Model trained, but the score is below 80%.\n\nF1 Score: {skor:.4f}\n\nTry uploading better data.")
+                messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
                                        
         except Exception as e:
-            # To prevent the program from crashing if a mathematical error occurs during training:
-            messagebox.showerror("Engine Error", f"A critical error occurred while training the model:\n{str(e)}")
+            messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
+
     def run_svc(self):
         # 1. SECURITY CHECKS
         if not self.secilen_dosya_yolu:
@@ -154,22 +157,30 @@ class AutoMLApp(ctk.CTk):
         X, y = sonuc
 
         # 3. ENGINE IGNITION
-        try: 
-            skor, model, scaler = train_svc(X, y)
+        # 3. MOTORU ATEŞLEME (Sınıflandırma Örneği)
+        try:
+            # Artık skor değil, 'metrikler' sözlüğü geliyor
+            metrikler, model, scaler = train_svc(X, y)
             
             self.aktif_model = model
             self.aktif_scaler = scaler
-            self.aktif_model_tipi = "SVC"
-
-            if skor >= 0.80:
-                messagebox.showinfo("Model Success!", 
-                                    f"Great! The model was trained with high accuracy.\n\nF1 Score: {skor:.4f}\n\nYou can now predict new data.")
+            self.aktif_model_tipi = "Classification"
+            
+            # Paketleri açıyoruz
+            f1 = metrikler["F1"]
+            auc = metrikler["AUC"]
+            cm = metrikler["CM"]
+            
+            mesaj = f"F1 Skoru: {f1:.4f}\nAUC: {auc}\n\nKarmaşıklık Matrisi (Confusion Matrix):\n{cm}"
+            
+            if f1 >= 0.80:
+                messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
             else:
-                messagebox.showwarning("Low Performance", 
-                                       f"Model trained, but the score is below 80%.\n\nF1 Score: {skor:.4f}\n\nTry uploading better data.")
+                messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
                                        
         except Exception as e:
-            messagebox.showerror("Engine Error", f"A critical error occurred while training the model:\n{str(e)}")
+            messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
+
     def run_linear(self):
         # 1. SECURITY CHECKS
         if not self.secilen_dosya_yolu:
@@ -192,21 +203,26 @@ class AutoMLApp(ctk.CTk):
 
         # 3. ENGINE IGNITION
         try: 
-            skor, model, scaler = train_linear_regression(X, y)
+            metrikler, model, scaler = train_linear_regression(X, y)
             
             self.aktif_model = model
             self.aktif_scaler = scaler
             self.aktif_model_tipi = "Linear Regression"
 
-            if skor >= 0.80:
-                messagebox.showinfo("Model Success!", 
-                                    f"Great! The model was trained with high accuracy.\n\nR2 Score: {skor:.4f}\n\nYou can now predict new data.")
+            r2 = metrikler["R2"]
+            mae = metrikler["MAE"]
+            mse = metrikler["MSE"]
+            
+            mesaj = f"R2 Skoru: {r2:.4f}\nOrtalama Mutlak Hata (MAE): {mae:.4f}\nOrtalama Kare Hata (MSE): {mse:.4f}"
+
+            if r2 >= 0.80:
+                messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
             else:
-                messagebox.showwarning("Low Performance", 
-                                       f"Model trained, but the score is below 80%.\n\nR2 Score: {skor:.4f}\n\nTry uploading better data.")
+                messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
                                        
         except Exception as e:
-            messagebox.showerror("Engine Error", f"A critical error occurred while training the model:\n{str(e)}")
+            messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
+
     def run_svr(self):
         # 1. SECURITY CHECKS
         if not self.secilen_dosya_yolu:
@@ -228,22 +244,25 @@ class AutoMLApp(ctk.CTk):
 
         # 3. ENGINE IGNITION
         try: 
-            skor, model, scaler = train_svr(X, y)
+            metrikler, model, scaler = train_svr(X, y)
             
             self.aktif_model = model
             self.aktif_scaler = scaler
-            self.aktif_model_tipi = "SVR"
+            self.aktif_model_tipi = "Linear Regression"
 
-            if skor >= 0.80:
-                messagebox.showinfo("Model Success!", 
-                                    f"Great! The model was trained with high accuracy.\n\nR2 Score: {skor:.4f}\n\nYou can now predict new data.")
+            r2 = metrikler["R2"]
+            mae = metrikler["MAE"]
+            mse = metrikler["MSE"]
+            
+            mesaj = f"R2 Skoru: {r2:.4f}\nOrtalama Mutlak Hata (MAE): {mae:.4f}\nOrtalama Kare Hata (MSE): {mse:.4f}"
+
+            if r2 >= 0.80:
+                messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
             else:
-                messagebox.showwarning("Low Performance", 
-                                       f"Model trained, but the score is below 80%.\n\nR2 Score: {skor:.4f}\n\nTry uploading better data.")
+                messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
                                        
         except Exception as e:
-            messagebox.showerror("Engine Error", f"A critical error occurred while training the model:\n{str(e)}")
-
+            messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
             
 if __name__ == "__main__":
     app = AutoMLApp()
