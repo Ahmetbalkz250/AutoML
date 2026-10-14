@@ -134,25 +134,26 @@ class AutoMLApp(ctk.CTk):
             # To prevent the program from crashing if a mathematical error occurs during training:
             messagebox.showerror("Engine Error", f"A critical error occurred while training the model:\n{str(e)}")
     def run_svc(self):
-        # 1. GÜVENLİK KONTROLLERİ
+        # 1. SECURITY CHECKS
         if not self.secilen_dosya_yolu:
-            messagebox.showerror("Eksik Bilgi", "Lütfen önce bir veri dosyası (.csv/.xlsx) seçin!")
+            messagebox.showerror("Missing Information", "Please select a data file (.csv/.xlsx) first!")
             return
         
         hedef_sutun = self.combo_hedef.get() 
-        if hedef_sutun == "Önce Dosya Seçin..." or hedef_sutun == "Hata Oluştu":
-            messagebox.showerror("Eksik Bilgi", "Lütfen geçerli bir hedef sütun seçin!")
+        # Açılır menüdeki İngilizce uyarılarla eşleşmesi için burayı da güncelledik:
+        if hedef_sutun == "Please select a file first..." or hedef_sutun == "Error Occurred":
+            messagebox.showerror("Missing Information", "Please select a valid target column!")
             return
         
-        # 2. VERİ HAZIRLIĞI
+        # 2. DATA PREPARATION
         basarili_mi, sonuc = load_and_prepare_data(self.secilen_dosya_yolu, hedef_sutun)       
         if not basarili_mi:
-            messagebox.showerror("Veri Hatası", sonuc)
+            messagebox.showerror("Data Error", sonuc)
             return
             
         X, y = sonuc
 
-        # 3. MOTORU ATEŞLEME
+        # 3. ENGINE IGNITION
         try: 
             skor, model, scaler = train_svc(X, y)
             
@@ -161,15 +162,14 @@ class AutoMLApp(ctk.CTk):
             self.aktif_model_tipi = "SVC"
 
             if skor >= 0.80:
-                messagebox.showinfo("Model Başarılı!", 
-                                    f"Harika! Model yüksek başarıyla eğitildi.\n\nF1 Skoru: {skor:.4f}\n\nArtık yeni verileri tahmin edebilirsiniz.")
+                messagebox.showinfo("Model Success!", 
+                                    f"Great! The model was trained with high accuracy.\n\nF1 Score: {skor:.4f}\n\nYou can now predict new data.")
             else:
-                messagebox.showwarning("Düşük Başarı", 
-                                       f"Model eğitildi ancak skor %80'in altında kaldı.\n\nF1 Skoru: {skor:.4f}\n\nDaha iyi veriler yüklemeyi deneyin.")
+                messagebox.showwarning("Low Performance", 
+                                       f"Model trained, but the score is below 80%.\n\nF1 Score: {skor:.4f}\n\nTry uploading better data.")
                                        
         except Exception as e:
-            messagebox.showerror("Motor Hatası", f"Model eğitilirken kritik bir hata oluştu:\n{str(e)}")
-
+            messagebox.showerror("Engine Error", f"A critical error occurred while training the model:\n{str(e)}")
     def run_linear(self):
         if not self.secilen_dosya_yolu:
             messagebox.showerror("Eksik Bilgi", "Lütfen önce bir veri dosyası (.csv/.xlsx) seçin!")
