@@ -18,16 +18,16 @@ def load_and_prepare_data(file_path, target_column):
         else:
             # If it is neither CSV nor Excel, send 'False' and an error message
             return False, "Error: Only files with .csv or .xlsx extensions are supported!"
-        target_column = str(target_column).strip()
+        target = str(target_column).strip()
         df.columns = df.columns.astype(str).str.strip()
         # 3. Does the target column entered by the user in the interface actually exist in the table?
-        if target_column not in df.columns:
-            return False, f"Error: 'A column named {target_column}' was not found!"
+        if target not in df.columns:
+            return False, f"Error: 'A column named {target}' was not found!"
         
         df = df.dropna()
 
-        y = df[target_column]
-        X_numeric = df.drop(columns= [target_column])
+        y = df[target]
+        X_numeric = df.drop(columns= [target])
 
         X = X_numeric.select_dtypes(include=['int64', 'float64', 'int32', 'float32'])
 
