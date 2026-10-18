@@ -2,7 +2,7 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import os
 from data_processor import load_and_prepare_data, get_column_names
-from models_classification import train_logistic_regression, train_svc
+from models_classification import train_logistic_regression, train_svc, train_gaussienbayes
 from models_regression import train_linear_regression, train_svr
 
 class AutoMLApp(ctk.CTk):
@@ -263,7 +263,50 @@ class AutoMLApp(ctk.CTk):
                                        
         except Exception as e:
             messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
-            
+
+    def run_gaussienNB(self):
+        # 1. SECURITY CHECKS
+                if not self.secilen_dosya_yolu:
+                    messagebox.showerror("Missing Information", "Please select a data file (.csv/.xlsx) first!")
+                    return
+                
+                hedef_sutun = self.combo_hedef.get() 
+                if hedef_sutun == "Please select a file first..." or hedef_sutun == "Error Occurred":
+                    messagebox.showerror("Missing Information", "Please select a valid target column!")
+                    return
+                
+                # 2. DATA PREPARATION
+                basarili_mi, sonuc = load_and_prepare_data(self.secilen_dosya_yolu, hedef_sutun)       
+                if not basarili_mi:
+                    messagebox.showerror("Data Error", sonuc)
+                    return
+                    
+                X, y = sonuc
+        
+                # 3. ENGINE IGNITION
+                try: 
+                    metrikler, model, scaler = train_gaussienbayes(X,y)
+                    
+                    self.aktif_model = model
+                    self.aktif_scaler = scaler
+                    self.aktif_model_tipi = "GaussienNB"
+        
+                    f1 = metrikler["F1"]
+                    auc = metrikler["AUC"]
+                    cm = metrikler["CM"]
+                    
+                    mesaj = f"F1 Skoru: {f1:.4f}\nAUC: {auc}\n\nKarmaşıklık Matrisi (Confusion Matrix):\n{cm}"
+                                
+                    if f1 >= 0.80:
+                        messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
+                    else:
+                        messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
+                                                           
+                except Exception as e:
+                    messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
+       
+                
+
 if __name__ == "__main__":
     app = AutoMLApp()
     app.mainloop()
