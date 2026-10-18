@@ -18,31 +18,27 @@ def load_and_prepare_data(file_path, target_column):
         else:
             # If it is neither CSV nor Excel, send 'False' and an error message
             return False, "Error: Only files with .csv or .xlsx extensions are supported!"
-        
+        target_column = str(target_column).strip()
+        df.columns = df.columns.astype(str).str.strip()
         # 3. Does the target column entered by the user in the interface actually exist in the table?
         if target_column not in df.columns:
             return False, f"Error: 'A column named {target_column}' was not found!"
         
-        # 4. MVP RULES
-        # If NaN cells is exist in table, we are deleteing the those rows from the table for the model to not crash.
         df = df.dropna()
-        
-        # We only collect numerical data. (We are excluding text/strings for now so the system doesn't crash.)
-        df_numeric = df.select_dtypes(include=['int64', 'float64'])
-        
-        if target_column not in df_numeric.columns:
-            return False, "Error: The target column must be numeric!"
+
+        y = df[target_column]
+        X_numeric = df.drop(columns= [target_column])
+
+        X = X_numeric.select_dtypes(include=['int64', 'float64', 'int32', 'float32'])
+
+        if X.empty:
+            return False, "Error: Feature columns must be numeric!"
             
-        # 5. Splitting Process: X (Variables) and y (Target)
-        y = df_numeric[target_column]
-        X = df_numeric.drop(columns=[target_column])
-        
-        # If the operation is successful, return True and the (X, y) tuple.
         return True, (X, y)
         
     except Exception as e:
-        # To prevent the program from crashing in the event of an unexpected error (e.g., a corrupted file)
         return False, f"An error occurred while reading the file: {str(e)}"
+
 
 
 def get_column_names(file_path):

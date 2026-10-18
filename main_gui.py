@@ -34,37 +34,44 @@ class AutoMLApp(ctk.CTk):
         self.label_dosya_yolu = ctk.CTkLabel(self, text="Selected File: None", text_color="gray", font=("Arial", 14))
         self.label_dosya_yolu.pack(pady=10)
         
-        # --- 3. MODELS (4 Buttons Grid) ---
+        # --- 3. MODELS (5 Buttons Grid) ---
         self.frame_modeller = ctk.CTkFrame(self)
         self.frame_modeller.pack(pady=40, padx=60, fill="both", expand=True)
         
-        # Centering the columns
+        # Sütunları merkeze hizalamak için esneklik veriyoruz
         self.frame_modeller.grid_columnconfigure(0, weight=1)
         self.frame_modeller.grid_columnconfigure(1, weight=1)
         
-        # Classification Buttons (Blue)
+        # Sınıflandırma Butonları (Mavi)
         self.btn_logistic = ctk.CTkButton(self.frame_modeller, text="Train Logistic Regression", 
                                           font=("Arial", 18, "bold"), width=320, height=80,
                                           command=self.run_logistic)
-        self.btn_logistic.grid(row=0, column=0, padx=30, pady=40)
+        self.btn_logistic.grid(row=0, column=0, padx=30, pady=20)
         
         self.btn_svc = ctk.CTkButton(self.frame_modeller, text="Train SVC (Classification)", 
                                      font=("Arial", 18, "bold"), width=320, height=80,
                                      command=self.run_svc)
-        self.btn_svc.grid(row=0, column=1, padx=30, pady=40)
+        self.btn_svc.grid(row=0, column=1, padx=30, pady=20)
         
-        # Regression Buttons (Orange)
+        # --- YENİ: GAUSSIAN NAIVE BAYES BUTONU ---
+        self.btn_gnb = ctk.CTkButton(self.frame_modeller, text="Train Gaussian NB (Classification)", 
+                                     font=("Arial", 18, "bold"), width=320, height=80,
+                                     command=self.run_gaussienNB)
+        # columnspan=2 ile butonu iki sütunun tam ortasına yayıyoruz
+        self.btn_gnb.grid(row=1, column=0, columnspan=2, padx=30, pady=20)
+        
+        # Regresyon Butonları (Turuncu)
         self.btn_linear = ctk.CTkButton(self.frame_modeller, text="Train Linear Regression", 
                                         font=("Arial", 18, "bold"), width=320, height=80,
                                         fg_color="#d35400", hover_color="#e67e22", 
                                         command=self.run_linear)
-        self.btn_linear.grid(row=1, column=0, padx=30, pady=40)
+        self.btn_linear.grid(row=2, column=0, padx=30, pady=20)
         
         self.btn_svr = ctk.CTkButton(self.frame_modeller, text="Train SVR (Regression)", 
                                      font=("Arial", 18, "bold"), width=320, height=80,
                                      fg_color="#d35400", hover_color="#e67e22", 
                                      command=self.run_svr)
-        self.btn_svr.grid(row=1, column=1, padx=30, pady=40)
+        self.btn_svr.grid(row=2, column=1, padx=30, pady=20)
         
         self.secilen_dosya_yolu = None
     def dosya_sec(self):
@@ -129,9 +136,9 @@ class AutoMLApp(ctk.CTk):
             mesaj = f"F1 Skoru: {f1:.4f}\nAUC: {auc}\n\nKarmaşıklık Matrisi (Confusion Matrix):\n{cm}"
             
             if f1 >= 0.80:
-                messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
+                messagebox.showinfo("Model Başarılı!", f"Harika! Logistik Regresyon modeli yüksek başarıyla eğitildi.\n\n{mesaj}")
             else:
-                messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
+                messagebox.showwarning("Düşük Başarı", f"Logistik Regresyon modeli eğitildi ancak skor düşük.\n\n{mesaj}")
                                        
         except Exception as e:
             messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
@@ -174,9 +181,9 @@ class AutoMLApp(ctk.CTk):
             mesaj = f"F1 Skoru: {f1:.4f}\nAUC: {auc}\n\nKarmaşıklık Matrisi (Confusion Matrix):\n{cm}"
             
             if f1 >= 0.80:
-                messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
+                messagebox.showinfo("Model Başarılı!", f"Harika! SVC modeli yüksek başarıyla eğitildi.\n\n{mesaj}")
             else:
-                messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
+                messagebox.showwarning("Düşük Başarı", f"SVC modeli eğitildi ancak skor düşük.\n\n{mesaj}")
                                        
         except Exception as e:
             messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
@@ -216,9 +223,9 @@ class AutoMLApp(ctk.CTk):
             mesaj = f"R2 Skoru: {r2:.4f}\nOrtalama Mutlak Hata (MAE): {mae:.4f}\nOrtalama Kare Hata (MSE): {mse:.4f}"
 
             if r2 >= 0.80:
-                messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
+                messagebox.showinfo("Model Başarılı!", f"Harika! Lineer Regresyon modeli yüksek başarıyla eğitildi.\n\n{mesaj}")
             else:
-                messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
+                messagebox.showwarning("Düşük Başarı", f"Lineer Regresyon modeli eğitildi ancak skor düşük.\n\n{mesaj}")
                                        
         except Exception as e:
             messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
@@ -257,9 +264,9 @@ class AutoMLApp(ctk.CTk):
             mesaj = f"R2 Skoru: {r2:.4f}\nOrtalama Mutlak Hata (MAE): {mae:.4f}\nOrtalama Kare Hata (MSE): {mse:.4f}"
 
             if r2 >= 0.80:
-                messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
+                messagebox.showinfo("Model Başarılı!", f"Harika! SVR modeli yüksek başarıyla eğitildi.\n\n{mesaj}")
             else:
-                messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
+                messagebox.showwarning("Düşük Başarı", f"SVR modeli eğitildi ancak skor düşük.\n\n{mesaj}")
                                        
         except Exception as e:
             messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
@@ -298,9 +305,9 @@ class AutoMLApp(ctk.CTk):
                     mesaj = f"F1 Skoru: {f1:.4f}\nAUC: {auc}\n\nKarmaşıklık Matrisi (Confusion Matrix):\n{cm}"
                                 
                     if f1 >= 0.80:
-                        messagebox.showinfo("Model Başarılı!", f"Harika! Model yüksek başarıyla eğitildi.\n\n{mesaj}")
+                        messagebox.showinfo("Model Başarılı!", f"Harika! GaussienNB modeli yüksek başarıyla eğitildi.\n\n{mesaj}")
                     else:
-                        messagebox.showwarning("Düşük Başarı", f"Model eğitildi ancak skor düşük.\n\n{mesaj}")
+                        messagebox.showwarning("Düşük Başarı", f"GaussienNB modeli başarıyla eğitildi ancak skor düşük.\n\n{mesaj}")
                                                            
                 except Exception as e:
                     messagebox.showerror("Engine Error", f"Hata:\n{str(e)}")
